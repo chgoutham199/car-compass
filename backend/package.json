@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "prisma generate && prisma db push --skip-generate && tsc -p tsconfig.json",
+    "build": "prisma generate && prisma db push --skip-generate && prisma db seed && tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "prisma:generate": "prisma generate",
