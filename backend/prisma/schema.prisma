@@ -1,0 +1,104 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BodyType {
+  HATCH
+  SEDAN
+  SUV
+  MUV
+  EV
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  HYBRID
+  EV
+  CNG
+}
+
+enum Transmission {
+  MT
+  AT
+  AMT
+  CVT
+  DCT
+  EV
+}
+
+model Car {
+  id          Int        @id @default(autoincrement())
+  make        String
+  model       String
+  bodyType    BodyType
+  segment     String
+  lengthMm    Int
+  bootLitres  Int
+  imageUrl    String?
+  variants    Variant[]
+  reviews     Review[]
+  shortlistItems ShortlistItem[]
+
+  @@unique([make, model])
+}
+
+model Variant {
+  id            Int          @id @default(autoincrement())
+  car           Car          @relation(fields: [carId], references: [id], onDelete: Cascade)
+  carId         Int
+  name          String
+  priceInr      Int
+  fuelType      FuelType
+  transmission  Transmission
+  mileageKmpl   Float
+  seating       Int
+  safetyRating  Int
+  engineCc      Int
+  powerBhp      Int
+  features      String[]
+  shortlistItems ShortlistItem[]
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  car     Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+  carId   Int
+  rating  Float
+  summary String
+  source  String
+}
+
+model UserSession {
+  id          String      @id @default(cuid())
+  quizAnswers Json
+  createdAt   DateTime    @default(now())
+  shortlists  Shortlist[]
+}
+
+model Shortlist {
+  id        String          @id @default(cuid())
+  session   UserSession?    @relation(fields: [sessionId], references: [id])
+  sessionId String?
+  name      String
+  createdAt DateTime        @default(now())
+  items     ShortlistItem[]
+}
+
+model ShortlistItem {
+  id          Int       @id @default(autoincrement())
+  shortlist   Shortlist @relation(fields: [shortlistId], references: [id], onDelete: Cascade)
+  shortlistId String
+  car         Car       @relation(fields: [carId], references: [id])
+  carId       Int
+  variant     Variant   @relation(fields: [variantId], references: [id])
+  variantId   Int
+  rank        Int
+  reasonJson  Json?
+}
