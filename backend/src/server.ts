@@ -6,7 +6,13 @@ import { compareRoutes } from "./routes/compare.js";
 import { shortlistRoutes } from "./routes/shortlists.js";
 
 async function main() {
-  const app = Fastify({ logger: true });
+  const app = Fastify({
+    logger: true,
+    rewriteUrl: (req) => {
+      const url = req.url ?? "/";
+      return url.startsWith("/api") ? url : "/api" + (url === "/" ? "" : url);
+    },
+  });
 
   await app.register(cors, { origin: true });
 
